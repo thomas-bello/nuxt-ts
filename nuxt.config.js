@@ -14,7 +14,14 @@ export default {
    ** See https://nuxtjs.org/api/configuration-head
    */
   head: {
-    title: process.env.npm_package_name || '',
+    titleTemplate: (chunk) => {
+      const after = process.env.npm_package_name
+      if (chunk) {
+        return `${chunk} - ${after}`
+      }
+
+      return after
+    },
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
@@ -29,12 +36,19 @@ export default {
   /*
    ** Global CSS
    */
-  css: ['element-ui/lib/theme-chalk/index.css'],
+  css: ['element-ui/lib/theme-chalk/index.css', '~/assets/css/content.css'],
   /*
    ** Plugins to load before mounting the App
    ** https://nuxtjs.org/guide/plugins
    */
-  plugins: ['@/plugins/element-ui'],
+  plugins: [
+    '@/plugins/markdown',
+    '@/plugins/init',
+    '@/plugins/vue-scrollactive',
+    '@/plugins/menu.client',
+    '@/plugins/element-ui',
+    '@/plugins/axios',
+  ],
   /*
    ** Auto import components
    ** See https://nuxtjs.org/api/configuration-components
@@ -47,6 +61,10 @@ export default {
     '@nuxt/typescript-build',
     // Doc: https://github.com/nuxt-community/stylelint-module
     '@nuxtjs/stylelint-module',
+    // Doc: https://github.com/nuxt-community/nuxt-tailwindcss
+    '@nuxtjs/tailwindcss',
+    // Doc: https://github.com/nuxt-community/moment-module
+    '@nuxtjs/moment',
   ],
   /*
    ** Nuxt.js modules
@@ -74,5 +92,9 @@ export default {
    */
   build: {
     transpile: [/^element-ui/],
+  },
+
+  env: {
+    baseUrl: process.env.BASE_URL || '/',
   },
 }
