@@ -1,3 +1,18 @@
+const isDevelopment = () => process.env.NODE_ENV === 'development'
+
+const getServerMiddleware = () => {
+  return isDevelopment()
+    ? [
+        '~/middleware/bodyParser',
+        // Will register file from project api directory to handle /api/* requires
+        {
+          path: '/api',
+          handler: '~/middleware/mock',
+        },
+      ]
+    : []
+}
+
 export default {
   /*
    ** Nuxt rendering mode
@@ -45,9 +60,12 @@ export default {
     '@/plugins/markdown',
     '@/plugins/init',
     '@/plugins/vue-scrollactive',
-    '@/plugins/menu.client',
     '@/plugins/element-ui',
-    '@/plugins/axios',
+    '@/plugins/axios-accessor',
+
+    '@/plugins/update.client',
+    '@/plugins/menu.client',
+    '@/plugins/i18n.client',
   ],
   /*
    ** Auto import components
@@ -66,6 +84,14 @@ export default {
     // Doc: https://github.com/nuxt-community/moment-module
     '@nuxtjs/moment',
   ],
+
+  /*
+   ** Build configuration
+   ** See https://nuxtjs.org/api/configuration-build/
+   */
+  build: {
+    transpile: [/^element-ui/],
+  },
   /*
    ** Nuxt.js modules
    */
@@ -75,26 +101,80 @@ export default {
     '@nuxtjs/pwa',
     // Doc: https://github.com/nuxt/content
     '@nuxt/content',
+    // Doc: https://github.com/TiagoDanin/Nuxt-SEO
+    'nuxt-seo',
+    // Doc: https://github.com/luciorubeens/nuxt-404
+    '@luciorubeens/nuxt-404',
+    // Doc: https://github.com/nuxt-community/i18n-module
+    'nuxt-i18n',
   ],
+
+  /*
+   ** Modules configuration
+   */
   /*
    ** Axios module configuration
    ** See https://axios.nuxtjs.org/options
    */
-  axios: {},
+  axios: {
+    headers: {
+      common: {
+        Accept: 'application/json, text/plain, */*',
+      },
+    },
+  },
   /*
    ** Content module configuration
    ** See https://content.nuxtjs.org/configuration
    */
   content: {},
-  /*
-   ** Build configuration
-   ** See https://nuxtjs.org/api/configuration-build/
-   */
-  build: {
-    transpile: [/^element-ui/],
+
+  i18n: {
+    locales: [
+      {
+        code: 'zh',
+        iso: 'zh-CN',
+        file: 'zh-CN.js',
+        name: '简体中文',
+      },
+      {
+        code: 'zh-hk',
+        iso: 'zh-HK',
+        file: 'zh-HK.js',
+        name: '繁体中文',
+      },
+      {
+        code: 'en',
+        iso: 'en-US',
+        file: 'en-US.js',
+        name: 'English',
+      },
+    ],
+    defaultLocale: 'zh',
+    parsePages: false,
+    lazy: true,
+    seo: false,
+    langDir: 'i18n/',
+  },
+
+  p404: {
+    names: [
+      'Confused Travolta',
+      'Space',
+      'Mailchimp',
+      'UnDraw',
+      'Ghost',
+      'Trash',
+      'Lost Keys',
+    ],
   },
 
   env: {
-    baseUrl: process.env.BASE_URL || '/',
+    baseUrl: process.env.BASE_URL || '/api',
+    dev: isDevelopment(),
   },
+  // router: {
+  //   middleware: getMiddleware(),
+  // },
+  serverMiddleware: getServerMiddleware(),
 }
